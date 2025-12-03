@@ -33,7 +33,7 @@ const formSchema = z.object({
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const { tokenSetter } = useAuth();
-  const { loading, error, fetchData } = useApi("/login", "POST");
+  const { loading, error, fetchData } = useApi("/auth/login", "POST");
   const navigate = useNavigate();
 
   const form = useForm({

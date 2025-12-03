@@ -43,7 +43,7 @@ const formSchema = z
   });
 
 export function RegistrationForm() {
-  const { loading, error, fetchData } = useApi("/register", "POST");
+  const { loading, error, fetchData } = useApi("/auth/register", "POST");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,12 +30,12 @@ import {
   TooltipProvider, // NOTE: Added provider wrapper for Tooltips
 } from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
-// import { useTheme } from "@/components/theme-provider"; // REMOVED: Theme import
 import { useAuth } from "@/context/AuthContext";
+import { connectWS } from "@/lib/wsConnect";
 
 const Home = () => {
   const { tokenSetter } = useAuth();
-  // const { theme, setTheme } = useTheme(); // REMOVED: Theme state/setter
+  const socket = useRef(null)
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -46,6 +46,11 @@ const Home = () => {
   const toggleAnonymousMode = () => {
     setIsAnonymous(!isAnonymous);
   };
+
+  useEffect(() => {
+    socket.current = connectWS();
+  }, [])
+  
 
   // NOTE: You need to wrap your application or the area using Tooltips with TooltipProvider.
   // I've added a TooltipProvider wrapper around the return statement.
