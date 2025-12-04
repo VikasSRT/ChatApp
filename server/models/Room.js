@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const roomSchema = new mongoose.Schema(
   {
     name: {
-      type: String, // group name, for direct chats you can auto-generate
+      type: String,
     },
     type: {
       type: String,
@@ -24,9 +24,15 @@ const roomSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    // Add this field to store reference to the last message
+    lastMessage: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+      default: null
+    },
     isAnonymousWorld: {
       type: Boolean,
-      default: false, // true for anonymous rooms/world
+      default: false,
     },
   },
   { timestamps: true }

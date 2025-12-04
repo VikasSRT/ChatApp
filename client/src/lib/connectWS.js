@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
 
 export const connectWS = () => {
-    return io("http://localhost:4000");
+    return io("http://localhost:3000");
 }

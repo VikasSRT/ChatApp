@@ -4,12 +4,6 @@ const userModel = require("../models/User");
 const searchUsers = async (req, res) => {
   try {
     const { q } = req.query;
-    
-    if (!q || q.trim().length < 2) {
-      return res.status(400).json({ 
-        message: "Search query must be at least 2 characters" 
-      });
-    }
 
     const searchTerm = q.trim().toLowerCase();
     
@@ -56,9 +50,10 @@ const searchUsers = async (req, res) => {
       {
         $project: {
           password: 0,          // Never include
-          email: 0,             // Never include full email
+          emailLocal: 0,        // <--- **REMOVED** the temporary emailLocal field
           blockedUsers: 0,      // Privacy
-          blockedBy: 0          // Privacy
+          blockedBy: 0,         // Privacy
+          // **NOTE:** We no longer explicitly exclude 'email', so it will be included.
         }
       },
       { $limit: 15 }
