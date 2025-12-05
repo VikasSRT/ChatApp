@@ -1,4 +1,5 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import React, {
   createContext,
   useContext,
@@ -10,6 +11,14 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  let userData = null;
+
+  if (!token) {
+    userData = null;
+  } else {
+    userData = jwtDecode(token || "");
+    console.log("userData", userData);
+  }
 
   const tokenSetter = (newToken) => {
     setToken(newToken);
@@ -25,7 +34,10 @@ const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const contextValue = useMemo(() => ({ token, tokenSetter }), [token]);
+  const contextValue = useMemo(
+    () => ({ token, tokenSetter, userData }),
+    [token]
+  );
 
   return (
     <>

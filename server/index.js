@@ -6,7 +6,7 @@ const connectDB = require("./config/connectDb");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
 const roomRoutes = require("./routes/room");
-const messageRoutes = require("./routes/messages")
+const messageRoutes = require("./routes/messages");
 const userRoutes = require("./routes/users");
 const { protect } = require("./middleware/authMiddleware");
 
@@ -16,13 +16,23 @@ const app = express();
 const server = createServer(app);
 
 const io = new Server(server, {
-  cors:{
+  cors: {
     origin: "*",
-  }
-})
+  },
+});
 
-io.on('connection', (socket) => {
-  console.log('a user connected', socket.id);
+io.on("connection", (socket) => {
+  console.log("a user connected", socket.id);
+
+  socket.on("joinRoom", (roomId) => {
+    socket.join(roomId);
+    console.log("User Joined Room with ID :-", roomId);
+  });
+
+  // for new received message
+  socket.on("newMessage", (data) => {
+    io.to(data.roomId).emit("message received", data);
+  });
 });
 
 app.use(express.json());
@@ -32,7 +42,7 @@ app.use("/api/auth/", authRoutes);
 app.use("/api/", protect, chatRoutes);
 
 app.use("/api/rooms", protect, roomRoutes);
-app.use("/api/messages", protect, messageRoutes)
+app.use("/api/messages", protect, messageRoutes);
 app.use("/api/users", protect, userRoutes);
 
 app.get("/", (req, res) => {

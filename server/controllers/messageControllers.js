@@ -7,6 +7,7 @@ const sendMessage = async (req, res) => {
   try {
     const { roomId, content } = req.body;
     const userId = req.user._id;
+    console.log('userId', userId)
 
     // Validation
     if (!roomId || !content?.trim()) {
@@ -55,6 +56,7 @@ const sendMessage = async (req, res) => {
       _id: message._id,
       content: message.content,
       sender: message.sender,
+      roomId,
       createdAt: message.createdAt,
       updatedAt: message.updatedAt
     });
@@ -112,6 +114,7 @@ const getMessages = async (req, res) => {
             avatarUrl: `/api/anonymous-avatar?seed=${msg.anonymousProfile?.avatarSeed || 'default'}`
           }
         : msg.sender,
+      currentUserId,
       createdAt: msg.createdAt,
       updatedAt: msg.updatedAt
     }));
@@ -121,7 +124,6 @@ const getMessages = async (req, res) => {
       messages: formattedMessages,
       roomId: roomId,
       chatType: room.type,
-      currentUserId: currentUserId
     });
   } catch (error) {
     console.error("Message fetch error:", error);
