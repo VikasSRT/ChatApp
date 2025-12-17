@@ -29,6 +29,18 @@ io.on("connection", (socket) => {
     console.log("User Joined Room with ID :-", roomId);
   });
 
+  // typing events
+
+  socket.on("typing", (user) => {
+    console.log(user, "is Typing...");
+    socket.broadcast.emit("user-typing", user);
+  });
+
+  socket.on("stop-typing", (user) => {
+    socket.broadcast.emit("user-stop-typing", user);
+    console.log(user, "stopped Typing...");
+  });
+
   // for new received message
   socket.on("newMessage", (data) => {
     io.to(data.roomId).emit("message received", data);
