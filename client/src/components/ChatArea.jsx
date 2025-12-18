@@ -16,9 +16,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/context/AuthContext";
 
 const ChatArea = ({
-  userData,
   activeChatUser,
   isAnonymous,
   messages,
@@ -28,8 +28,20 @@ const ChatArea = ({
   message,
   setMessage,
   sendMessageHandler,
-  handleWriteMessage,
 }) => {
+  const { userData } = useAuth();
+  const handleWriteMessage = (e) => {
+    setMessage(e.target.value);
+
+    const { exp, iat, ...user } = userData;
+
+    if (e.target.value) {
+      socket.current.emit("typing", user);
+    } else {
+      socket.current.emit("stop-typing", user);
+    }
+  };
+
   return (
     <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-card/30 backdrop-blur-sm">
       {/* Chat Header */}

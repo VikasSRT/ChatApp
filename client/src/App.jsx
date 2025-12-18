@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import { LoginForm } from "./pages/LoginForm";
 import { RegistrationForm } from "./pages/RegistrationForm";
 import { RouterProvider } from "react-router";
-import About from "./pages/About";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
 import Home from "./pages/Home";

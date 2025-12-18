@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,29 +18,58 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useApi } from "@/hooks/useApi";
+import { useUserSearch } from "@/hooks/useUserSearch";
+import { useAuth } from "@/context/AuthContext";
 
 export const Navbar = ({
-  // Sidebar/mobile menu state
   sidebarOpen,
   setSidebarOpen,
-
-  // Search functionality
-  searchText,
-  isUsersLoading,
-  isUserLoadingError,
-  userSearchResults,
-  hasSearched,
-  searchHandler,
-  startChatHandler,
-
-  // Authentication & user state
-  userData,
-  handleLogout,
-
-  // Anonymous mode toggle
+  setActiveChatUser,
+  getMessagesForUser,
   isAnonymous,
-  toggleAnonymousMode,
+  setIsAnonymous,
 }) => {
+  const {
+    searchText,
+    hasSearched,
+    userSearchResults,
+    isUsersLoading,
+    isUserLoadingError,
+    searchHandler,
+    setSearchText,
+    setUserSearchResults,
+    setHasSearched,
+  } = useUserSearch();
+  const { fetchData } = useApi("/rooms/direct", "POST");
+  const { tokenSetter, userData } = useAuth();
+
+  // Start chat with selected user from search results
+  const startChatHandler = async (user) => {
+    setSearchText("");
+    setUserSearchResults([]);
+    const response = await fetchData({ userId: user._id });
+    const data = response?.data;
+    setHasSearched(false);
+    setActiveChatUser({
+      id: data.room._id,
+      isGroup: false,
+      name: user?.username,
+      type: data.room.type,
+    });
+
+    const chatObj = { id: data.room._id };
+    await getMessagesForUser(chatObj);
+  };
+
+  const handleLogout = () => {
+    tokenSetter(null);
+  };
+
+  const toggleAnonymousMode = () => {
+    setIsAnonymous(!isAnonymous);
+  };
+
   return (
     <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +78,7 @@ export const Navbar = ({
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="cursor-pointer"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu className="h-6 w-6" />

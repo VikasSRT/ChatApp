@@ -1,27 +1,63 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUserSearch } from "@/hooks/useUserSearch";
 
-const GroupCreationModal = ({
-  showGroupModal,
-  setShowGroupModal,
-  groupName,
-  setGroupName,
-  selectedUsers,
-  setSelectedUsers,
-  groupCreating,
-  searchText,
-  isUsersLoading,
-  userSearchResults,
-  hasSearched,
-  searchHandler,
-  startChatHandler,
-  handleCreateGroup,
-  chats,
-}) => {
+const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
   if (!showGroupModal) return null;
+
+  const {
+    searchText,
+    hasSearched,
+    userSearchResults,
+    isUsersLoading,
+    isUserLoadingError,
+    searchHandler,
+    setSearchText,
+    setUserSearchResults,
+  } = useUserSearch();
+  const { fetchData: createGroupChat } = useApi("/rooms/group", "POST");
+  const [groupCreating, setGroupCreating] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [groupName, setGroupName] = useState("");
+  const handleCreateGroup = async () => {
+    if (!groupName.trim() || selectedUsers.length < 2) return;
+
+    setGroupCreating(true);
+
+    const response = await createGroupChat({
+      name: groupName,
+      members: selectedUsers,
+    });
+    const data = response?.data;
+
+    // 2. Join the new group room
+    socket.current.emit("joinRoom", data.room._id);
+
+    // 3. Add to chats list
+    setChats((prev) => [data.room, ...prev]);
+
+    // 4. Open the new group chat
+    setActiveChatUser({
+      id: data.room._id,
+      name: data.room.name,
+      isGroup: true,
+      type: "group",
+    });
+
+    // 5. Get initial messages
+    getMessagesForUser({ id: data.room._id });
+
+    // 6. Close modal and reset
+    setShowGroupModal(false);
+    setGroupName("");
+    setSelectedUsers([]);
+    setSearchText("");
+    setUserSearchResults([]);
+
+    setGroupCreating(false);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -122,12 +158,12 @@ const GroupCreationModal = ({
                     d="M15 19l-7-7 7-7"
                   />
                 </svg>
-                Members Added ({selectedUsers.length})
+                Members Added ({selectedUsers?.length})
               </h3>
               <div className="flex flex-wrap gap-2">
-                {selectedUsers.map((userId) => {
+                {selectedUsers?.map((userId) => {
                   const user =
-                    userSearchResults.find((u) => u._id === userId) ||
+                    userSearchResults?.find((u) => u._id === userId) ||
                     chats
                       .find((c) => c._id === userId)
                       ?.participants?.find((p) => p._id === userId);

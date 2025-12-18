@@ -16,6 +16,10 @@ const ConversationSidebar = ({
   showGroupModal,
   setShowGroupModal,
 }) => {
+  const handleInitializeChat = (chatObj) => {
+    setActiveChatUser(chatObj);
+    getMessagesForUser(chatObj);
+  };
   return (
     <aside
       className={`${
@@ -47,10 +51,7 @@ const ConversationSidebar = ({
               <Card
                 key={i}
                 className={`border-1 hover:border-primary/50 cursor-pointer transition-all duration-200 rounded-none`}
-                onClick={() => {
-                  setActiveChatUser(chatObj);
-                  getMessagesForUser(chatObj);
-                }}
+                onClick={() => handleInitializeChat(chatObj)}
               >
                 <CardContent className="p-3 flex items-center space-x-3">
                   <Avatar className="h-10 w-10 border-1 ring-1 ring-primary/20">
