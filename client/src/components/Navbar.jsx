@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,18 +18,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useApi } from "@/hooks/useApi";
 import { useUserSearch } from "@/hooks/useUserSearch";
 import { useAuth } from "@/context/AuthContext";
+import useUIStore from "@/stores/useUIStore";
+import useChatStore from "@/stores/useChatStore";
 
-export const Navbar = ({
-  sidebarOpen,
-  setSidebarOpen,
-  setActiveChatUser,
-  getMessagesForUser,
-  isAnonymous,
-  setIsAnonymous,
-}) => {
+export const Navbar = () => {
   const {
     searchText,
     hasSearched,
@@ -38,28 +32,24 @@ export const Navbar = ({
     isUserLoadingError,
     searchHandler,
     setSearchText,
-    setUserSearchResults,
     setHasSearched,
+    setUserSearchResults,
   } = useUserSearch();
-  const { fetchData } = useApi("/rooms/direct", "POST");
   const { tokenSetter, userData } = useAuth();
+  const { sidebarOpen, setSidebarOpen, isAnonymous, setIsAnonymous } =
+    useUIStore();
+  const { startChatHandler } = useChatStore();
 
-  // Start chat with selected user from search results
-  const startChatHandler = async (user) => {
+  const handleStartChat = async (user) => {
     setSearchText("");
     setUserSearchResults([]);
-    const response = await fetchData({ userId: user._id });
-    const data = response?.data;
     setHasSearched(false);
-    setActiveChatUser({
-      id: data.room._id,
-      isGroup: false,
-      name: user?.username,
-      type: data.room.type,
-    });
 
-    const chatObj = { id: data.room._id };
-    await getMessagesForUser(chatObj);
+    try {
+      await startChatHandler(userData, user);
+    } catch (error) {
+      console.error("Failed to start chat:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -170,7 +160,7 @@ export const Navbar = ({
                             variant="ghost"
                             size="sm"
                             className="opacity-0 group-hover:opacity-100 transition-opacity h-6 text-xs px-2 bg-primary/10 hover:bg-primary/20 text-primary cursor-pointer"
-                            onClick={() => startChatHandler(user)}
+                            onClick={() => handleStartChat(user)}
                           >
                             Chat
                           </Button>

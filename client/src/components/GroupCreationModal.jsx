@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUserSearch } from "@/hooks/useUserSearch";
+import useUIStore from "@/stores/useUIStore";
+import useChatStore from "@/stores/useChatStore";
 
-const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
-  if (!showGroupModal) return null;
-
+const GroupCreationModal = ({ chats }) => {
+  const { showGroupModal, setShowGroupModal } = useUIStore();
   const {
     searchText,
     hasSearched,
@@ -17,7 +18,7 @@ const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
     setSearchText,
     setUserSearchResults,
   } = useUserSearch();
-  const { fetchData: createGroupChat } = useApi("/rooms/group", "POST");
+  const { createGroupChatHandler } = useChatStore();
   const [groupCreating, setGroupCreating] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [groupName, setGroupName] = useState("");
@@ -26,30 +27,15 @@ const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
 
     setGroupCreating(true);
 
-    const response = await createGroupChat({
-      name: groupName,
-      members: selectedUsers,
-    });
-    const data = response?.data;
+    try {
+      await createGroupChatHandler({
+        name: groupName,
+        members: selectedUsers,
+      });
+    } catch (error) {
+      console.log("Error creating group");
+    }
 
-    // 2. Join the new group room
-    socket.current.emit("joinRoom", data.room._id);
-
-    // 3. Add to chats list
-    setChats((prev) => [data.room, ...prev]);
-
-    // 4. Open the new group chat
-    setActiveChatUser({
-      id: data.room._id,
-      name: data.room.name,
-      isGroup: true,
-      type: "group",
-    });
-
-    // 5. Get initial messages
-    getMessagesForUser({ id: data.room._id });
-
-    // 6. Close modal and reset
     setShowGroupModal(false);
     setGroupName("");
     setSelectedUsers([]);
@@ -58,6 +44,8 @@ const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
 
     setGroupCreating(false);
   };
+
+  if (!showGroupModal) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -165,7 +153,7 @@ const GroupCreationModal = ({ showGroupModal, setShowGroupModal, chats }) => {
                   const user =
                     userSearchResults?.find((u) => u._id === userId) ||
                     chats
-                      .find((c) => c._id === userId)
+                      ?.find((c) => c._id === userId)
                       ?.participants?.find((p) => p._id === userId);
                   return (
                     <div

@@ -17,28 +17,41 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/AuthContext";
+import useUIStore from "@/stores/useUIStore";
+import useChatStore from "@/stores/useChatStore";
 
-const ChatArea = ({
-  activeChatUser,
-  isAnonymous,
-  messages,
-  loadingMessages,
-  isTyping,
-  typingUsers,
-  message,
-  setMessage,
-  sendMessageHandler,
-}) => {
+const ChatArea = () => {
   const { userData } = useAuth();
+  const { isAnonymous } = useUIStore();
+  const {
+    activeChatUser,
+    messages,
+    loadingMessages,
+    isTyping,
+    typingUsers,
+    message,
+    setMessage,
+    sendMessageHandler,
+  } = useChatStore();
+
   const handleWriteMessage = (e) => {
     setMessage(e.target.value);
 
+    if (!activeChatUser?.id) return;
+
+    const { socket } = useChatStore.getState();
     const { exp, iat, ...user } = userData;
 
     if (e.target.value) {
-      socket.current.emit("typing", user);
+      socket.emit("typing", user);
     } else {
-      socket.current.emit("stop-typing", user);
+      socket.emit("stop-typing", user);
+    }
+  };
+
+  const handleSend = () => {
+    if (message.trim()) {
+      sendMessageHandler(userData);
     }
   };
 
@@ -227,14 +240,14 @@ const ChatArea = ({
               name="message"
               value={message}
               onChange={handleWriteMessage}
-              onKeyDown={(e) => e.keyCode === 13 && sendMessageHandler()}
+              onKeyDown={(e) => e.keyCode === 13 && handleSend()}
             />
           </div>
 
           <Button
             size="icon"
             className="bg-black hover:bg-primary/90 text-white rounded-full w-11 h-11 shadow-lg hover:cursor-pointer"
-            onClick={sendMessageHandler}
+            onClick={handleSend}
           >
             <SendHorizontal className="h-5 w-5" />
           </Button>
