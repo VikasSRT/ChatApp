@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,19 +34,28 @@ const ChatArea = () => {
     sendMessageHandler,
   } = useChatStore();
 
-  const handleWriteMessage = (e) => {
-    setMessage(e.target.value);
-
-    if (!activeChatUser?.id) return;
+  useEffect(() => {
+    if (!message.trim() || !activeChatUser?.id) {
+      const { socket } = useChatStore.getState();
+      const { exp, iat, ...user } = userData;
+      socket.emit("stop-typing", user);
+      return;
+    }
 
     const { socket } = useChatStore.getState();
     const { exp, iat, ...user } = userData;
 
-    if (e.target.value) {
-      socket.emit("typing", user);
-    } else {
+    socket.emit("typing", user);
+
+    const typingTimer = setTimeout(() => {
       socket.emit("stop-typing", user);
-    }
+    }, 2000);
+
+    return () => clearTimeout(typingTimer);
+  }, [message, activeChatUser?.id, userData]);
+
+  const handleWriteMessage = (e) => {
+    setMessage(e.target.value);
   };
 
   const handleSend = () => {

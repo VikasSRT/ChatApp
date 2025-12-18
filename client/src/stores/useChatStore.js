@@ -132,6 +132,21 @@ const useChatStore = create((set, get) => {
         throw error;
       }
     },
+
+    connectSocket: () => {
+      const { socket } = get();
+      if (!socket.connected) {
+        socket.connect();
+      }
+    },
+
+    disconnectSocket: () => {
+      const { socket } = get();
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    },
+
     // WebSocket event handlers
     setupSocketListeners: () => {
       const { socket } = get();
@@ -152,18 +167,12 @@ const useChatStore = create((set, get) => {
       });
 
       socket.on("user-stop-typing", (user) => {
-        setTimeout(() => {
-          set((state) => {
-            const updatedTypingUsers = state.typingUsers.filter(
-              (u) => u.userId !== user.userId
-            );
-
-            return {
-              typingUsers: updatedTypingUsers,
-              isTyping: updatedTypingUsers.length > 0,
-            };
-          });
-        }, 1000);
+        set((state) => ({
+          typingUsers: state.typingUsers.filter(
+            (u) => u.userId !== user.userId
+          ),
+          isTyping: state.typingUsers.length > 1,
+        }));
       });
     },
 

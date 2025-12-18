@@ -8,17 +8,23 @@ import ChatArea from "@/components/ChatArea";
 import GroupCreationModal from "@/components/GroupCreationModal";
 
 const Home = () => {
-  const { socket, initializeChats, setupSocketListeners, cleanupSocket } =
-    useChatStore();
+  const {
+    connectSocket,
+    disconnectSocket,
+    initializeChats,
+    setupSocketListeners,
+    cleanupSocket,
+  } = useChatStore();
 
   useEffect(() => {
+    connectSocket();
     setupSocketListeners();
 
     initializeChats();
 
     return () => {
       cleanupSocket();
-      socket.disconnect();
+      disconnectSocket();
     };
   }, []);
 
