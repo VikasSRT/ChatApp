@@ -25,3 +25,13 @@ export const createGroupChat = async (payload) => {
   const response = await axiosInstance.post("/rooms/group", payload);
   return response;
 };
+
+export const editMessage = async (payload, messageId) => {
+  const response = await axiosInstance.put(`/messages/${messageId}`, payload);
+  return response;
+};
+
+export const deleteMessage = async (messageId) => {
+  const response = await axiosInstance.delete(`/messages/${messageId}`);
+  return response;
+};

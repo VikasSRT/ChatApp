@@ -7,6 +7,8 @@ import {
   sendMessage as sendMsgApi,
   createRoom,
   createGroupChat,
+  deleteMessage,
+  editMessage,
 } from "@/services/chatService";
 
 const useChatStore = create((set, get) => {
@@ -43,6 +45,8 @@ const useChatStore = create((set, get) => {
         const response = await fetchMessages(chatObj.id);
         const data = response.data;
 
+        console.log("data?.messages", data?.messages);
+
         get().socket.emit("joinRoom", chatObj.id);
         set({
           messages: data?.messages || [],
@@ -59,6 +63,44 @@ const useChatStore = create((set, get) => {
           messagesLoadingError: error.message || "Failed to load messages",
         });
         throw error;
+      }
+    },
+
+    editMessageHandler: async (messageId, newContent) => {
+      const { socket, activeChatUser } = get();
+      console.log("newContent", newContent);
+      try {
+        // Call API
+        const response = await editMessage(newContent, messageId);
+        const data = await response.data;
+
+        // If API success, emit socket event
+        socket.emit("edit-message", {
+          roomId: activeChatUser.id,
+          messageId,
+          newContent: data?.data,
+        });
+
+        return true;
+      } catch (error) {
+        console.error("Failed to edit message:", error);
+        throw error;
+      }
+    },
+
+    deleteMessageHandler: async (messageId) => {
+      try {
+        const response = await deleteMessage(messageId);
+        const data = response.data;
+
+        socket.emit("delete-message", {
+          messageId,
+          roomId: get().activeChatUser.id, // We need the room ID to broadcast
+        });
+
+        return data;
+      } catch (error) {
+        console.error("Failed to delete messages:", error);
       }
     },
 
@@ -157,6 +199,24 @@ const useChatStore = create((set, get) => {
         }));
       });
 
+      socket.on("message-deleted", (deletedMessageId) => {
+        set((state) => ({
+          messages: state.messages.filter(
+            (msg) => msg._id !== deletedMessageId
+          ),
+        }));
+      });
+
+      socket.on("message-updated", ({ messageId, newContent }) => {
+        set((state) => ({
+          messages: state.messages.map((msg) =>
+            msg._id === messageId
+              ? { ...msg, content: newContent?.content, isEdited: true }
+              : msg
+          ),
+        }));
+      });
+
       socket.on("user-typing", (user) => {
         set((state) => ({
           typingUsers: state.typingUsers.some((u) => u.userId === user.userId)
@@ -179,6 +239,8 @@ const useChatStore = create((set, get) => {
     cleanupSocket: () => {
       const { socket } = get();
       socket.off("message received");
+      socket.off("message-deleted");
+      socket.off("message-updated");
       socket.off("user-typing");
       socket.off("user-stop-typing");
     },

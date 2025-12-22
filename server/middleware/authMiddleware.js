@@ -15,6 +15,8 @@ const protect = async (req, res, next) => {
 
       req.user = await userModel.findById(decoded.userId).select("-password");
 
+      console.log("req.user", req.user);
+
       if (req.user) {
         next();
       } else {

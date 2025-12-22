@@ -17,6 +17,10 @@ const messageSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
     // for future: files, images, etc.
     // attachments: [ ... ],
 

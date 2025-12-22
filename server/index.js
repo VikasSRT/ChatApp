@@ -41,6 +41,22 @@ io.on("connection", (socket) => {
     console.log(user, "stopped Typing...");
   });
 
+  // for editing messages
+
+  socket.on("edit-message", (data) => {
+    // data = { roomId, messageId, newContent }
+    console.log("Message Edited:", data.messageId);
+    // Broadcast to everyone in the room (including sender to confirm update)
+    io.to(data.roomId).emit("message-updated", data);
+  });
+
+  // for delete messages
+  socket.on("delete-message", (data) => {
+    const { messageId, roomId } = data;
+    // Broadcast to everyone in the room (including sender)
+    io.to(roomId).emit("message-deleted", messageId);
+  });
+
   // for new received message
   socket.on("newMessage", (data) => {
     io.to(data.roomId).emit("message received", data);
