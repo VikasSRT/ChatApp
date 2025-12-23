@@ -354,16 +354,18 @@ const ChatArea = () => {
         <div className="flex items-end space-x-2 max-w-3xl mx-auto">
           <Button
             variant="ghost"
-            size="icon"
-            className={`text-muted-foreground ${
-              showEmojiPicker ? "text-primary bg-muted" : ""
+            className={`text-muted-foreground hover:text-yellow-400 hover:bg-yellow-50 rounded-full h-12 w-12 cursor-pointer ${
+              showEmojiPicker ? "text-yellow-500 bg-yellow-100" : ""
             }`}
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           >
-            <Smile className="h-5 w-5" />
+            <Smile className="h-8 w-8" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <Paperclip className="h-5 w-5" />
+          <Button
+            variant="ghost"
+            className="text-muted-foreground hover:text-blue-500 hover:bg-blue-50 h-12 w-12 rounded-full cursor-pointer"
+          >
+            <Paperclip className="h-6 w-6" />
           </Button>
 
           <div className="flex-1 min-w-0">
