@@ -71,7 +71,7 @@ export const Navbar = () => {
               className="cursor-pointer"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6 md:hidden" />
             </Button>
             <div className="flex items-center space-x-2">
               <div className="bg-primary/10 p-2 rounded-lg">
