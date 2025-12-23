@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,6 +22,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import useUIStore from "@/stores/useUIStore";
 import useChatStore from "@/stores/useChatStore";
+import EmojiPicker from "emoji-picker-react";
+import { Textarea } from "./ui/textarea";
 
 const ChatArea = () => {
   const { userData } = useAuth();
@@ -42,6 +44,8 @@ const ChatArea = () => {
   // NEW: Local state for editing
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiRef = useRef(null);
 
   // Function to start editing
   const handleEditClick = (msg) => {
@@ -66,6 +70,20 @@ const ChatArea = () => {
       console.error("Failed to update message");
     }
   };
+
+  const onEmojiClick = (emojiObject) => {
+    setMessage(message + emojiObject.emoji);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emojiRef.current && !emojiRef.current.contains(event.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (!message.trim() || !activeChatUser?.id) {
@@ -205,10 +223,10 @@ const ChatArea = () => {
                         <Input
                           multiline
                           className="h-8 bg-white/50 text-black border-none 
-           [&:focus-visible]:ring-0 
-           [&:focus-visible]:ring-offset-0
-           [&:focus-visible]:border-[1px] 
-           [&:focus-visible]:border-ring/50"
+                          [&:focus-visible]:ring-0 
+                          [&:focus-visible]:ring-offset-0
+                          [&:focus-visible]:border-[1px] 
+                          [&:focus-visible]:border-ring/50"
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                           onKeyDown={(e) => {
@@ -318,9 +336,30 @@ const ChatArea = () => {
       </div>
 
       {/* Message Input Area */}
-      <div className="border-t p-4 bg-card/70">
+      <div className="border-t p-4 bg-card/70 relative">
+        {showEmojiPicker && (
+          <div
+            ref={emojiRef}
+            className="absolute bottom-20 left-4 z-50 shadow-xl rounded-xl"
+          >
+            <EmojiPicker
+              onEmojiClick={onEmojiClick}
+              theme="auto" // Adapts to your light/dark mode
+              searchDisabled={false}
+              width={300}
+              height={400}
+            />
+          </div>
+        )}
         <div className="flex items-end space-x-2 max-w-3xl mx-auto">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`text-muted-foreground ${
+              showEmojiPicker ? "text-primary bg-muted" : ""
+            }`}
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          >
             <Smile className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon" className="text-muted-foreground">
