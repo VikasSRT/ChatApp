@@ -203,12 +203,16 @@ export const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full"
+                  className="relative h-9 w-9 rounded-full border-1 rounded-full p-2"
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage src="/avatars/01.png" alt="User" />
                     <AvatarFallback>
-                      <span className="font-medium text-primary">JD</span>
+                      <span className="font-medium text-primary">
+                        {userData?.username
+                          ?.split(" ")
+                          ?.map((c) => `${c?.charAt(0)?.toUpperCase()}`)}
+                      </span>
                     </AvatarFallback>
                   </Avatar>
                 </Button>
