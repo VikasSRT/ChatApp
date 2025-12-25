@@ -24,6 +24,7 @@ import useUIStore from "@/stores/useUIStore";
 import useChatStore from "@/stores/useChatStore";
 import EmojiPicker from "emoji-picker-react";
 import { Textarea } from "./ui/textarea";
+import { Badge } from "./ui/badge";
 
 const ChatArea = () => {
   const { userData } = useAuth();
@@ -126,41 +127,61 @@ const ChatArea = () => {
   return (
     <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-card/30 backdrop-blur-sm">
       {/* Chat Header */}
-      <div className="border-b p-4 flex items-center justify-between bg-card/70">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-            <AvatarImage src="/avatars/01.png" alt="User" />
-            <AvatarFallback>
-              {activeChatUser?.name
-                ?.split(" ")
-                .map((c) => `${c?.charAt(0)?.toUpperCase()}`)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="font-bold text-lg">{activeChatUser?.name}</h1>
-            <div className="flex items-center space-x-1">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  isAnonymous ? "bg-purple-500" : "bg-green-500"
-                }`}
-              />
-              <span className="text-sm text-muted-foreground">
-                {isAnonymous ? "Anonymous User" : "Online"}
-              </span>
+      <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-white backdrop-blur-sm">
+        <div className="flex items-center justify-between">
+          {/* Left Section - User Info */}
+          <div className="flex items-center space-x-3 min-w-0">
+            {/* Avatar - Improved with consistent sizing */}
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
+                {activeChatUser?.name
+                  ?.split(" ")
+                  .map((word) => word[0])
+                  .join("")
+                  .substring(0, 3)
+                  .toUpperCase() || "U"}
+              </div>
+            </div>
+
+            {/* User Details */}
+            <div className="min-w-0">
+              <div className="flex items-center space-x-2">
+                <h1 className="font-bold text-lg truncate max-w-[180px]">
+                  {activeChatUser?.name || "User"}
+                </h1>
+
+                {activeChatUser?.type.includes("group") && (
+                  <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                    Group
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                    isAnonymous ? "bg-purple-500" : "bg-green-500"
+                  }`}
+                ></span>
+                {isAnonymous ? "Anonymous" : "Online"}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <MessageCircle className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Video className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          {/* Right Section - Action Buttons */}
+          <div className="flex items-center space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <MessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            </button>
+
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <Video className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            </button>
+
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+              <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -369,16 +390,22 @@ const ChatArea = () => {
           </Button>
 
           <div className="flex-1 min-w-0">
-            <Input
+            <Textarea
               placeholder={
                 isAnonymous
                   ? "Send anonymous message..."
                   : "Type your message..."
               }
-              className="min-h-[44px] bg-background/80"
+              className="min-h-[44px] bg-background/80 max-h-[200px]"
               value={message}
               onChange={handleWriteMessage}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (!e.shiftKey) {
+                    handleSend(e);
+                  }
+                }
+              }}
             />
           </div>
 

@@ -2,7 +2,7 @@
 
 /* For the entire scrollbar */
 ::-webkit-scrollbar {
-  width: 12px; /* Adjust the width */
+  width: 7px; /* Adjust the width */
 }
 
 /* For the scrollbar track (the background) */
@@ -13,7 +13,11 @@
 
 /* For the scrollbar thumb (the draggable handle) */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #4a90e2, #50e3c2); /* A cool gradient */
+  background: linear-gradient(
+    to bottom,
+    #4a90e2,
+    #50e3c2
+  ); /* A cool gradient */
   border-radius: 10px; /* Rounded corners for the thumb */
   /* Optional: Add a shadow for depth */
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
@@ -21,9 +25,12 @@
 
 /* Add a hover effect for the thumb */
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #357ABD, #3CC7A6); /* Slightly darker gradient on hover */
+  background: linear-gradient(
+    to bottom,
+    #357abd,
+    #3cc7a6
+  ); /* Slightly darker gradient on hover */
 }
-
 
 /* 
 :root {
