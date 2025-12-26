@@ -48,6 +48,9 @@ const ChatArea = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiRef = useRef(null);
 
+  // NEW: Auto-scroll ref
+  const messagesEndRef = useRef(null);
+
   // Function to start editing
   const handleEditClick = (msg) => {
     setEditingMessageId(msg._id);
@@ -68,13 +71,18 @@ const ChatArea = () => {
       setEditingMessageId(null);
       setEditText("");
     } catch (error) {
-      console.error("Failed to update message");
+      console.error("Failed to update message", error);
     }
   };
 
   const onEmojiClick = (emojiObject) => {
     setMessage(message + emojiObject.emoji);
   };
+
+  // Scroll to bottom whenever messages change or someone starts typing
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -120,7 +128,7 @@ const ChatArea = () => {
     try {
       deleteMessageHandler(messageId);
     } catch (error) {
-      console.log("error: failed to delete message");
+      console.log("error: failed to delete message", error);
     }
   };
 
@@ -131,7 +139,7 @@ const ChatArea = () => {
         <div className="flex items-center justify-between">
           {/* Left Section - User Info */}
           <div className="flex items-center space-x-3 min-w-0">
-            {/* Avatar - Improved with consistent sizing */}
+            {/* Avatar */}
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
                 {activeChatUser?.name
@@ -173,11 +181,9 @@ const ChatArea = () => {
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <MessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </button>
-
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <Video className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </button>
-
             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </button>
@@ -185,69 +191,82 @@ const ChatArea = () => {
         </div>
       </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-amber-50/60">
+      {/* Messages Area - UPDATED DESIGN */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-amber-50/60 custom-scrollbar">
         {loadingMessages ? (
           <div className="flex justify-center py-8">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : messages?.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>No messages yet</p>
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-60">
+            <div className="bg-amber-100 p-4 rounded-full mb-3">
+              <MessageCircle className="h-8 w-8 text-amber-600" />
+            </div>
+            <p className="text-sm font-medium">
+              No messages yet. Say hello! 👋
+            </p>
           </div>
         ) : (
           messages?.map((msg, index) => {
             const isCurrentUser = msg?.sender?._id === userData?.userId;
             const isEditing = editingMessageId === msg._id;
 
+            // Check if previous message was from same user to group them visually
+            const isSequence =
+              index > 0 &&
+              messages[index - 1]?.sender?._id === msg?.sender?._id;
+
             return (
               <div
                 key={msg._id || index}
                 className={`flex w-full group ${
-                  isCurrentUser ? "justify-end" : "items-end"
-                }`}
+                  isCurrentUser ? "justify-end" : "justify-start"
+                } ${isSequence ? "mt-1" : "mt-4"}`}
               >
+                {/* Avatar: Only show for others, and only if it's the start of a sequence or standalone */}
                 {!isCurrentUser && (
-                  <div className="h-8 w-8 min-w-[32px] rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                    <span className="text-purple-600 font-medium text-xs">
-                      {msg?.sender?.username?.charAt(0)}
-                    </span>
+                  <div
+                    className={`flex flex-col justify-end mr-2 w-8 ${
+                      isSequence ? "invisible" : ""
+                    }`}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-100 to-purple-200 border border-white shadow-sm flex items-center justify-center">
+                      <span className="text-violet-700 font-bold text-xs uppercase">
+                        {msg?.sender?.username?.charAt(0)}
+                      </span>
+                    </div>
                   </div>
                 )}
 
                 <div
-                  className={`flex items-center gap-2 max-w-[80%] ${
+                  className={`flex items-end gap-2 max-w-[75%] ${
                     isCurrentUser ? "flex-row-reverse" : "flex-row"
                   }`}
                 >
                   <div
-                    className={`rounded-xl p-3 ${
+                    className={`relative px-4 py-2 shadow-sm transition-all ${
                       isCurrentUser
-                        ? "bg-green-300 text-primary-foreground rounded-tl-none"
-                        : "bg-card bg-blue-300 rounded-tr-none"
+                        ? "bg-violet-600 text-white rounded-2xl rounded-tr-sm"
+                        : "bg-white text-gray-800 border border-gray-100 rounded-2xl rounded-tl-sm"
                     }`}
                   >
-                    <span
-                      className={`text-xs mb-1.5 font-bold block ${
-                        isCurrentUser
-                          ? "text-right opacity-90"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {msg?.sender?.username}
-                    </span>
+                    {/* Username: Only show for others in group chats */}
+                    {!isCurrentUser && !isSequence && (
+                      <span className="text-[11px] font-bold text-violet-600 block mb-1">
+                        {msg?.sender?.username}
+                      </span>
+                    )}
 
                     {/* Conditional Rendering: Edit Input vs Text */}
                     {isEditing ? (
-                      <div className="flex flex-col space-y-2 min-w-[200px]">
+                      <div className="flex flex-col space-y-2 min-w-[220px]">
                         <Input
-                          multiline
-                          className="h-8 bg-white/50 text-black border-none 
-                          [&:focus-visible]:ring-0 
-                          [&:focus-visible]:ring-offset-0
-                          [&:focus-visible]:border-[1px] 
-                          [&:focus-visible]:border-ring/50"
+                          multiline="true"
+                          className={`min-h-[2.5rem] text-sm border-none focus-visible:ring-1 focus-visible:ring-offset-0 ${
+                            isCurrentUser
+                              ? "bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-white/30"
+                              : "bg-gray-50 text-black focus-visible:ring-violet-400"
+                          }`}
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                           onKeyDown={(e) => {
@@ -256,82 +275,87 @@ const ChatArea = () => {
                           }}
                           autoFocus
                         />
-                        <div className="flex justify-end space-x-1">
+                        <div className="flex justify-end gap-1">
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-6 w-6 text-red-500"
+                            className={`h-6 w-6 hover:bg-black/10 ${
+                              isCurrentUser
+                                ? "text-red-200 hover:text-red-100"
+                                : "text-red-500 hover:text-red-600"
+                            }`}
                             onClick={handleCancelEdit}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3.5 w-3.5" />
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-6 w-6 text-green-700"
+                            className={`h-6 w-6 hover:bg-black/10 ${
+                              isCurrentUser
+                                ? "text-green-200 hover:text-green-100"
+                                : "text-green-600 hover:text-green-700"
+                            }`}
                             onClick={() => handleUpdate(msg._id)}
                           >
-                            <Check className="h-4 w-4" />
+                            <Check className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
                     ) : (
-                      <p
-                        className={
-                          isCurrentUser ? "text-black" : "text-muted-foreground"
-                        }
-                      >
-                        {typeof msg?.content === "object"
-                          ? msg.content
-                          : msg?.content}
-                        {msg.isEdited && (
-                          <span className="text-[10px] ml-1 opacity-50 italic">
-                            (edited)
-                          </span>
-                        )}
-                      </p>
+                      <div className="flex flex-wrap items-end gap-2">
+                        <p
+                          className={`text-sm leading-relaxed whitespace-pre-wrap ${
+                            isCurrentUser ? "text-white" : "text-gray-800"
+                          }`}
+                        >
+                          {typeof msg?.content === "object"
+                            ? msg.content
+                            : msg?.content}
+                          {msg.isEdited && (
+                            <span className="text-[10px] ml-1 opacity-60 italic">
+                              (edited)
+                            </span>
+                          )}
+                        </p>
+                        <span
+                          className={`text-[10px] min-w-fit ${
+                            isCurrentUser ? "text-violet-200" : "text-gray-400"
+                          }`}
+                        >
+                          {new Date(msg?.createdAt)?.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
                     )}
-
-                    <span
-                      className={`text-xs mt-1 block ${
-                        isCurrentUser
-                          ? "text-right opacity-90"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {new Date(msg?.createdAt)?.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
                   </div>
 
-                  {/* Options Menu */}
+                  {/* Options Menu (Three Dots) */}
                   {isCurrentUser && !isEditing && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full hover:bg-gray-200/50"
                         >
-                          <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                          <MoreVertical className="h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align={isCurrentUser ? "end" : "start"}
-                      >
+                      <DropdownMenuContent align="end" className="w-32">
                         <DropdownMenuItem
                           onClick={() => handleEditClick(msg)}
-                          className="cursor-pointer"
+                          className="cursor-pointer text-xs"
                         >
-                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                          <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDelete(msg._id)}
-                          className="text-red-600 cursor-pointer"
+                          className="text-red-600 cursor-pointer text-xs focus:text-red-600"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -342,18 +366,37 @@ const ChatArea = () => {
           })
         )}
 
+        {/* Improved Typing Indicator */}
         {isTyping && (
-          <div className="bg-gray-200 p-3 w-fit rounded-md text-sm font-bold flex items-center mb-4 animate-in fade-in">
-            <span className="text-black pr-2">
-              {typingUsers?.map((c) => c.username).join(", ")} is Typing
-            </span>
-            <span className="flex space-x-1">
-              <span className="w-1 h-1 bg-black rounded-full animate-bounce" />
-              <span className="w-1 h-1 bg-black rounded-full animate-bounce delay-75" />
-              <span className="w-1 h-1 bg-black rounded-full animate-bounce delay-150" />
-            </span>
+          <div className="flex items-center gap-2 mt-4 ml-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-3">
+              <span className="text-xs font-medium text-gray-500">
+                {typingUsers?.length > 2
+                  ? "Several people are typing"
+                  : `${typingUsers
+                      ?.map((c) => c.username)
+                      .join(", ")} is typing`}
+              </span>
+              <div className="flex space-x-1">
+                <span
+                  className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
+              </div>
+            </div>
           </div>
         )}
+
+        {/* Auto-scroll anchor */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input Area */}
@@ -365,7 +408,7 @@ const ChatArea = () => {
           >
             <EmojiPicker
               onEmojiClick={onEmojiClick}
-              theme="auto" // Adapts to your light/dark mode
+              theme="auto"
               searchDisabled={false}
               width={300}
               height={400}
