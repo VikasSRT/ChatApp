@@ -219,34 +219,74 @@ export const Navbar = () => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {userData?.username}
-                    </p>
-                    <p className="text-xs leading-none text-gray-500">
-                      {userData?.email || ""}
-                    </p>
+              <DropdownMenuContent
+                className="w-72 p-1 bg-white/95 backdrop-blur-xl border border-gray-100 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-2xl animate-in fade-in zoom-in-95 duration-200"
+                align="end"
+                sideOffset={8}
+              >
+                {/* Header Section */}
+                <DropdownMenuLabel className="font-normal p-3">
+                  <div className="flex items-center gap-3">
+                    {/* User Avatar with Gradient */}
+                    <div className="h-11 w-11 rounded-full bg-gradient-to-tr from-violet-500 to-purple-600 p-[2px] shadow-md">
+                      <div className="h-full w-full rounded-full bg-white flex items-center justify-center">
+                        <div className="h-full w-full rounded-full bg-gradient-to-tr from-violet-100 to-purple-50 flex items-center justify-center">
+                          <span className="font-bold text-lg text-violet-600">
+                            {userData?.username?.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* User Info */}
+                    <div className="flex flex-col space-y-0.5 overflow-hidden">
+                      <p className="text-sm font-bold text-gray-900 truncate">
+                        {userData?.username}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate font-medium max-w-[160px]">
+                        {userData?.email || "user@example.com"}
+                      </p>
+                    </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Users className="mr-2 h-4 w-4 text-gray-400" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4 text-gray-400" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="text-red-500 focus:text-red-600"
-                >
-                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
+
+                <div className="px-1">
+                  <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                </div>
+
+                {/* Menu Items */}
+                <div className="px-1 space-y-1">
+                  <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 px-3 text-gray-700 focus:bg-gray-50 focus:text-violet-900 transition-all duration-200 group">
+                    <div className="bg-gray-50 group-focus:bg-violet-100 border border-gray-100 group-focus:border-violet-200 p-2 rounded-lg mr-3 transition-colors">
+                      <Users className="h-4 w-4 text-gray-500 group-focus:text-violet-600" />
+                    </div>
+                    <span className="font-medium text-sm">Profile</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 px-3 text-gray-700 focus:bg-gray-50 focus:text-violet-900 transition-all duration-200 group">
+                    <div className="bg-gray-50 group-focus:bg-violet-100 border border-gray-100 group-focus:border-violet-200 p-2 rounded-lg mr-3 transition-colors">
+                      <Settings className="h-4 w-4 text-gray-500 group-focus:text-violet-600" />
+                    </div>
+                    <span className="font-medium text-sm">Settings</span>
+                  </DropdownMenuItem>
+                </div>
+
+                <div className="px-1">
+                  <DropdownMenuSeparator className="bg-gray-100 my-1" />
+                </div>
+
+                {/* Logout Section */}
+                <div className="px-1 mb-1">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer rounded-xl py-2.5 px-3 text-red-600 focus:bg-red-50 focus:text-red-700 transition-all duration-200 group"
+                  >
+                    <div className="bg-red-50 group-focus:bg-red-100 border border-red-50 group-focus:border-red-200 p-2 rounded-lg mr-3 transition-colors">
+                      <LogOut className="h-4 w-4 text-red-500 group-focus:text-red-600" />
+                    </div>
+                    <span className="font-medium text-sm">Log out</span>
+                  </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
