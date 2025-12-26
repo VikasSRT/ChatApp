@@ -61,9 +61,10 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo Section */}
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
@@ -71,29 +72,29 @@ export const Navbar = () => {
               className="cursor-pointer"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
-              <Menu className="h-6 w-6 md:hidden" />
+              <Menu className="h-5 w-5 text-gray-500 md:hidden" />
             </Button>
             <div className="flex items-center space-x-2">
               <div className="bg-primary/10 p-2 rounded-lg">
-                <MessageCircle className="h-6 w-6 text-primary" />
+                <MessageCircle className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-lg font-semibold text-gray-800">
                 Mehfil
               </span>
             </div>
           </div>
 
-          <div className="hidden md:block max-w-xl mx-auto relative">
-            {/* Added relative positioning */}
-            <div className="relative md:w-80 lg:w-96">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          {/* Search Section */}
+          <div className="hidden md:block max-w-xl mx-auto">
+            <div className="relative w-96">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
                 name="search"
                 value={searchText}
                 onChange={(e) => searchHandler(e.target.value)}
                 placeholder="Search users..."
-                className="pl-10 pr-4 py-2 bg-muted/50 border-muted focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all"
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
                 autoComplete="off"
               />
 
@@ -104,21 +105,22 @@ export const Navbar = () => {
                 </div>
               )}
             </div>
+
             {/* Search Results Dropdown */}
             {searchText && (
-              <div className="absolute z-50 w-full mt-1 bg-card border border-muted rounded-lg shadow-lg max-h-96 overflow-y-auto animate-in fade-in slide-in-from-top-1">
+              <div className="absolute z-50 w-96 mt-1 bg-white border border-gray-200 rounded-lg shadow-md max-h-96 overflow-y-auto">
                 <div className={`${isUsersLoading ? "p-2" : ""} bg-white`}>
                   {isUsersLoading ? (
-                    <div className="py-8 text-center text-muted-foreground">
+                    <div className="py-8 text-center text-gray-500">
                       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                       Searching users...
                     </div>
                   ) : isUserLoadingError ? (
-                    <div className="py-4 text-center text-destructive text-sm">
+                    <div className="py-4 text-center text-red-500 text-sm">
                       Failed to search users. Please try again.
                     </div>
                   ) : userSearchResults?.length === 0 && hasSearched ? (
-                    <div className="py-4 text-center text-muted-foreground text-sm">
+                    <div className="py-4 text-center text-gray-500 text-sm">
                       No users found matching "{searchText}"
                     </div>
                   ) : (
@@ -126,15 +128,13 @@ export const Navbar = () => {
                       {userSearchResults?.map((user, index) => (
                         <div
                           key={user?._id || index}
-                          className="flex items-center p-2 rounded-md hover:bg-accent/50 cursor-pointer transition-colors group"
+                          className="flex items-center p-3 rounded-md hover:bg-gray-50 cursor-pointer transition-colors group"
                           onClick={() => {
                             setSearchText("");
-                            // setUserSearchResults([]);
-                            // Handle user selection here
                             console.log("Selected user:", user);
                           }}
                         >
-                          <Avatar className="h-8 w-8">
+                          <Avatar className="h-9 w-9">
                             <AvatarImage
                               src={
                                 user?.avatar ||
@@ -149,18 +149,21 @@ export const Navbar = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div className="ml-3 flex-1 min-w-0">
-                            <p className="font-medium truncate">
+                            <p className="font-medium text-gray-800 truncate">
                               {user?.username || `User ${index + 1}`}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate">
+                            <p className="text-xs text-gray-500 truncate">
                               {user?.email || "user@example.com"}
                             </p>
                           </div>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-6 text-xs px-2 bg-primary/10 hover:bg-primary/20 text-primary cursor-pointer"
-                            onClick={() => handleStartChat(user)}
+                            className="h-8 text-xs px-2 border-gray-600 border-2 text-primary cursor-pointer hover:bg-primary/5"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartChat(user);
+                            }}
                           >
                             Chat
                           </Button>
@@ -175,27 +178,22 @@ export const Navbar = () => {
 
           {/* Right Side Controls */}
           <div className="flex items-center space-x-3">
-            {/* Theme Toggle (REMOVED) */}
-
             {/* Anonymous Mode Button */}
             <Button
               onClick={toggleAnonymousMode}
+              variant={isAnonymous ? "default" : "outline"}
               className={`${
                 isAnonymous
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/30"
-                  : "bg-background hover:bg-accent border border-dashed border-purple-400/50 text-purple-400 hover:text-purple-500"
-              } transition-all duration-300 group`}
+                  ? "bg-purple-500 hover:bg-purple-600 text-white"
+                  : "border-purple-400 text-purple-500 hover:text-purple-600"
+              } transition-all duration-200`}
             >
-              <div className="flex items-center space-x-2">
-                <span className="font-medium">
-                  {isAnonymous ? "Anonymous Mode: ON" : "Anonymous Chat Mode"}
-                </span>
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    isAnonymous ? "bg-white" : "bg-purple-400"
-                  } transition-all duration-300 group-hover:scale-125`}
-                />
-              </div>
+              <span className="text-sm font-medium">
+                {isAnonymous ? "Anonymous Chat Mode" : "Anonymous Chat Mode"}
+              </span>
+              {isAnonymous && (
+                <span className="ml-1 h-2 w-2 rounded-full bg-white" />
+              )}
             </Button>
 
             {/* User Menu */}
@@ -203,38 +201,42 @@ export const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full border-1 rounded-full p-2"
+                  className="relative h-9 w-9 rounded-full"
                 >
                   <Avatar className="h-9 w-9">
-                    <AvatarImage src="/avatars/01.png" alt="User" />
-                    <AvatarFallback>
-                      <span className="font-medium text-primary">
+                    <AvatarImage
+                      src={userData?.avatar || "/avatars/01.png"}
+                      alt={userData?.username || "User"}
+                    />
+                    <AvatarFallback className="bg-gray-100 text-gray-600">
+                      <span className="font-medium">
                         {userData?.username
                           ?.split(" ")
-                          ?.map((c) => `${c?.charAt(0)?.toUpperCase()}`)}
+                          ?.map((c) => c?.charAt(0)?.toUpperCase())
+                          ?.join("") || "U"}
                       </span>
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 mr-4" align="end" forceMount>
+              <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {userData?.username}
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-xs leading-none text-gray-500">
                       {userData?.email || ""}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Users className="mr-2 h-4 w-4" />
+                  <Users className="mr-2 h-4 w-4 text-gray-400" />
                   <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="mr-2 h-4 w-4 text-gray-400" />
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -242,7 +244,7 @@ export const Navbar = () => {
                   onClick={handleLogout}
                   className="text-red-500 focus:text-red-600"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4 text-red-500" />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -252,12 +254,12 @@ export const Navbar = () => {
       </div>
 
       {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 py-2 border-t">
+      <div className="md:hidden px-4 py-2 border-t border-gray-200">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search chats..."
-            className="pl-10 pr-4 py-2 bg-muted/50 border-muted focus:bg-background focus:ring-2 focus:ring-primary/20"
+            placeholder="Search users..."
+            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-white"
           />
         </div>
       </div>
