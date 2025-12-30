@@ -95,7 +95,7 @@ const useChatStore = create((set, get) => {
 
         socket.emit("delete-message", {
           messageId,
-          roomId: get().activeChatUser.id, // We need the room ID to broadcast
+          roomId: get().activeChatUser.id,
         });
 
         return data;
@@ -194,9 +194,31 @@ const useChatStore = create((set, get) => {
       const { socket } = get();
 
       socket.on("message received", (newMessage) => {
-        set((state) => ({
-          messages: [...state.messages, newMessage],
-        }));
+        set((state) => {
+          const isActiveChat = state.activeChatUser?.id === newMessage.roomId;
+
+          const updatedMessages = isActiveChat
+            ? [...state.messages, newMessage]
+            : state.messages;
+
+          const updatedChats = state.chats
+            .map((chat) => {
+              if (chat.id === newMessage.roomId) {
+                return {
+                  ...chat,
+                  lastMessage: newMessage,
+                  updatedAt: newMessage.createdAt,
+                };
+              }
+              return chat;
+            })
+            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+          return {
+            messages: updatedMessages,
+            chats: updatedChats,
+          };
+        });
       });
 
       socket.on("message-deleted", (deletedMessageId) => {
