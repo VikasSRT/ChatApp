@@ -23,7 +23,6 @@ import useUIStore from "@/stores/useUIStore";
 import useChatStore from "@/stores/useChatStore";
 import EmojiPicker from "emoji-picker-react";
 import { Textarea } from "./ui/textarea";
-import { Badge } from "./ui/badge";
 
 const ChatArea = () => {
   const { userData } = useAuth();
@@ -329,7 +328,7 @@ const ChatArea = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className={`h-6 w-6 hover:bg-black/10 ${
+                            className={`h-6 w-6 hover:bg-black/10 cursor-pointer ${
                               isCurrentUser
                                 ? "text-red-200 hover:text-red-100"
                                 : "text-red-500 hover:text-red-600"
@@ -341,7 +340,7 @@ const ChatArea = () => {
                           <Button
                             size="icon"
                             variant="ghost"
-                            className={`h-6 w-6 hover:bg-black/10 ${
+                            className={`h-6 w-6 hover:bg-black/10 cursor-pointer ${
                               isCurrentUser
                                 ? "text-green-200 hover:text-green-100"
                                 : "text-green-600 hover:text-green-700"
