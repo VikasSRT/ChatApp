@@ -6,7 +6,7 @@ import { useUserSearch } from "@/hooks/useUserSearch";
 import useUIStore from "@/stores/useUIStore";
 import useChatStore from "@/stores/useChatStore";
 
-const GroupCreationModal = ({ chats }) => {
+const GroupCreationModal = () => {
   const { showGroupModal, setShowGroupModal } = useUIStore();
   const {
     searchText,
@@ -27,13 +27,15 @@ const GroupCreationModal = ({ chats }) => {
 
     setGroupCreating(true);
 
+    const selectedUsersForGroup = selectedUsers.map((user) => user._id);
+
     try {
       await createGroupChatHandler({
         name: groupName,
-        members: selectedUsers,
+        members: selectedUsersForGroup,
       });
     } catch (error) {
-      console.log("Error creating group");
+      console.log("Error creating group", error);
     }
 
     setShowGroupModal(false);
@@ -149,15 +151,10 @@ const GroupCreationModal = ({ chats }) => {
                 Members Added ({selectedUsers?.length})
               </h3>
               <div className="flex flex-wrap gap-2">
-                {selectedUsers?.map((userId) => {
-                  const user =
-                    userSearchResults?.find((u) => u._id === userId) ||
-                    chats
-                      ?.find((c) => c._id === userId)
-                      ?.participants?.find((p) => p._id === userId);
+                {selectedUsers?.map((user) => {
                   return (
                     <div
-                      key={userId}
+                      key={user._id}
                       className="flex items-center bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full pl-3 pr-1 py-1 text-sm font-medium"
                     >
                       <span className="mr-1">
@@ -169,7 +166,9 @@ const GroupCreationModal = ({ chats }) => {
                         className="h-4 w-4 p-0 ml-1 hover:bg-indigo-200 rounded-full transition-colors"
                         onClick={() =>
                           setSelectedUsers((prev) =>
-                            prev.filter((id) => id !== userId)
+                            prev.filter(
+                              (selectedUser) => selectedUser._id !== user._id
+                            )
                           )
                         }
                       >
@@ -213,10 +212,12 @@ const GroupCreationModal = ({ chats }) => {
                         onClick={() => {
                           if (isSelected) {
                             setSelectedUsers((prev) =>
-                              prev.filter((id) => id !== user._id)
+                              prev.filter(
+                                (selectedUser) => selectedUser._id !== user._id
+                              )
                             );
                           } else {
-                            setSelectedUsers((prev) => [...prev, user._id]);
+                            setSelectedUsers((prev) => [...prev, user]);
                           }
                         }}
                       >
@@ -280,7 +281,7 @@ const GroupCreationModal = ({ chats }) => {
               setGroupName("");
             }}
             disabled={groupCreating}
-            className="px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm font-semibold rounded-lg text-gray-600 border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
           >
             Cancel
           </Button>
@@ -289,7 +290,7 @@ const GroupCreationModal = ({ chats }) => {
             disabled={
               !groupName.trim() || selectedUsers.length < 2 || groupCreating
             }
-            className="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:bg-indigo-300"
+            className="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:bg-indigo-300 cursor-pointer"
           >
             {groupCreating ? (
               <>
