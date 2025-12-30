@@ -135,64 +135,66 @@ const ChatArea = () => {
   return (
     <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-card/30 backdrop-blur-sm">
       {/* Chat Header */}
-      <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-white backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          {/* Left Section - User Info */}
-          <div className="flex items-center space-x-3 min-w-0">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
-                {activeChatUser?.name
-                  ?.split(" ")
-                  .map((word) => word[0])
-                  .join("")
-                  .substring(0, 3)
-                  .toUpperCase() || "U"}
+      {activeChatUser?.id && (
+        <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-white backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            {/* Left Section - User Info */}
+            <div className="flex items-center space-x-3 min-w-0">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
+                  {activeChatUser?.name
+                    ?.split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .substring(0, 3)
+                    .toUpperCase() || "U"}
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div className="min-w-0">
+                <div className="flex items-center space-x-2">
+                  <h1 className="font-bold text-lg truncate max-w-[180px]">
+                    {activeChatUser?.name || "User"}
+                  </h1>
+
+                  {activeChatUser?.type.includes("group") && (
+                    <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                      Group
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      isAnonymous ? "bg-purple-500" : "bg-green-500"
+                    }`}
+                  ></span>
+                  {isAnonymous ? "Anonymous" : "Online"}
+                </div>
               </div>
             </div>
 
-            {/* User Details */}
-            <div className="min-w-0">
-              <div className="flex items-center space-x-2">
-                <h1 className="font-bold text-lg truncate max-w-[180px]">
-                  {activeChatUser?.name || "User"}
-                </h1>
-
-                {activeChatUser?.type.includes("group") && (
-                  <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
-                    Group
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                <span
-                  className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                    isAnonymous ? "bg-purple-500" : "bg-green-500"
-                  }`}
-                ></span>
-                {isAnonymous ? "Anonymous" : "Online"}
-              </div>
+            {/* Right Section - Action Buttons */}
+            <div className="flex items-center space-x-2">
+              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <MessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+              </button>
+              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <Video className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+              </button>
+              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+              </button>
             </div>
-          </div>
-
-          {/* Right Section - Action Buttons */}
-          <div className="flex items-center space-x-2">
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <MessageCircle className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <Video className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-            </button>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Messages Area - UPDATED DESIGN */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-amber-50/60 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 bg-amber-50/60 custom-scrollbar">
         {loadingMessages ? (
           <div className="flex justify-center py-8">
             <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
@@ -400,67 +402,69 @@ const ChatArea = () => {
       </div>
 
       {/* Message Input Area */}
-      <div className="border-t p-4 bg-card/70 relative">
-        {showEmojiPicker && (
-          <div
-            ref={emojiRef}
-            className="absolute bottom-20 left-4 z-50 shadow-xl rounded-xl"
-          >
-            <EmojiPicker
-              onEmojiClick={onEmojiClick}
-              theme="auto"
-              searchDisabled={false}
-              width={300}
-              height={400}
-            />
-          </div>
-        )}
-        <div className="flex items-end space-x-2 max-w-3xl mx-auto">
-          <Button
-            variant="ghost"
-            className={`text-muted-foreground hover:text-yellow-400 hover:bg-yellow-50 rounded-full h-12 w-12 cursor-pointer ${
-              showEmojiPicker ? "text-yellow-500 bg-yellow-100" : ""
-            }`}
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          >
-            <Smile className="h-8 w-8" />
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-blue-500 hover:bg-blue-50 h-12 w-12 rounded-full cursor-pointer"
-          >
-            <Paperclip className="h-6 w-6" />
-          </Button>
+      {activeChatUser?.id && (
+        <div className="border-t p-4 bg-card/70 relative">
+          {showEmojiPicker && (
+            <div
+              ref={emojiRef}
+              className="absolute bottom-20 left-4 z-50 shadow-xl rounded-xl"
+            >
+              <EmojiPicker
+                onEmojiClick={onEmojiClick}
+                theme="auto"
+                searchDisabled={false}
+                width={300}
+                height={400}
+              />
+            </div>
+          )}
+          <div className="flex items-end space-x-2 max-w-3xl mx-auto">
+            <Button
+              variant="ghost"
+              className={`text-muted-foreground hover:text-yellow-400 hover:bg-yellow-50 rounded-full h-12 w-12 cursor-pointer ${
+                showEmojiPicker ? "text-yellow-500 bg-yellow-100" : ""
+              }`}
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            >
+              <Smile className="h-8 w-8" />
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-muted-foreground hover:text-blue-500 hover:bg-blue-50 h-12 w-12 rounded-full cursor-pointer"
+            >
+              <Paperclip className="h-6 w-6" />
+            </Button>
 
-          <div className="flex-1 min-w-0">
-            <Textarea
-              placeholder={
-                isAnonymous
-                  ? "Send anonymous message..."
-                  : "Type your message..."
-              }
-              className="min-h-[44px] bg-background/80 max-h-[200px]"
-              value={message}
-              onChange={handleWriteMessage}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (!e.shiftKey) {
-                    handleSend(e);
-                  }
+            <div className="flex-1 min-w-0">
+              <Textarea
+                placeholder={
+                  isAnonymous
+                    ? "Send anonymous message..."
+                    : "Type your message..."
                 }
-              }}
-            />
-          </div>
+                className="min-h-[44px] bg-background/80 max-h-[200px]"
+                value={message}
+                onChange={handleWriteMessage}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (!e.shiftKey) {
+                      handleSend(e);
+                    }
+                  }
+                }}
+              />
+            </div>
 
-          <Button
-            size="icon"
-            className="bg-black text-white rounded-full w-11 h-11 cursor-pointer"
-            onClick={handleSend}
-          >
-            <SendHorizontal className="h-5 w-5" />
-          </Button>
+            <Button
+              size="icon"
+              className="bg-black text-white rounded-full w-11 h-11 cursor-pointer"
+              onClick={handleSend}
+            >
+              <SendHorizontal className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </main>
   );
 };
