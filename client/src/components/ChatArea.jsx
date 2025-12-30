@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, X } from "lucide-react";
+import { Check, Info, MoreVerticalIcon, User, Users, X } from "lucide-react";
 import {
   MessageCircle,
   Video,
@@ -18,7 +18,6 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import useUIStore from "@/stores/useUIStore";
 import useChatStore from "@/stores/useChatStore";
@@ -185,9 +184,58 @@ const ChatArea = () => {
               <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                 <Video className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </button>
-              <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <MoreVertical className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-              </button>
+
+              {/* NEW: Group Options Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <MoreVerticalIcon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 rounded-xl border border-gray-100 bg-white/90 backdrop-blur-sm shadow-lg p-2"
+                >
+                  {activeChatUser?.type.includes("group") ? (
+                    <>
+                      {/* Group Members Option */}
+                      <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-3">
+                          <Users className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          View Group Members
+                        </span>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="my-1 h-px bg-gray-100" />
+
+                      {/* Group ID */}
+                      <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-default">
+                        <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mr-3">
+                          <Info className="h-4 w-4" />
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          Group ID: {activeChatUser?.id}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Profile Option */}
+                      <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-3">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">
+                          View Profile
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -346,18 +394,25 @@ const ChatArea = () => {
                           <MoreVertical className="h-3.5 w-3.5 text-gray-500" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-32">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-32 rounded-xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg p-1"
+                      >
                         <DropdownMenuItem
                           onClick={() => handleEditClick(msg)}
-                          className="cursor-pointer text-xs"
+                          className="cursor-pointer text-xs rounded-lg py-2 px-3 hover:bg-gray-50"
                         >
-                          <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                          <span className="flex items-center">
+                            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
+                          </span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleDelete(msg._id)}
-                          className="text-red-600 cursor-pointer text-xs focus:text-red-600"
+                          className="cursor-pointer text-xs rounded-lg py-2 px-3 hover:bg-red-50 text-red-600"
                         >
-                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                          <span className="flex items-center">
+                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                          </span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
