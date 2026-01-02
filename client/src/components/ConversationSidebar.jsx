@@ -18,6 +18,7 @@ const ConversationSidebar = () => {
   } = useChatStore();
 
   const handleInitializeChat = (chatObj) => {
+    if (chatObj?.id === activeChatUser?.id) return;
     setActiveChatUser(chatObj);
     getMessagesForUser(chatObj);
   };
