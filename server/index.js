@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 const { Server } = require("socket.io");
 const { createServer } = require("http");
+const cors = require("cors");
 const connectDB = require("./config/connectDb");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
@@ -14,6 +15,15 @@ connectDB();
 
 const app = express();
 const server = createServer(app);
+
+app.use(
+  cors({
+    origin: "http://localhost:4000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 const io = new Server(server, {
   cors: {
