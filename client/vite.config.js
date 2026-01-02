@@ -19,7 +19,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3000", // Make sure this matches your SERVER port
+        target: "https://chatapp-backend-y1p9.onrender.com", // Make sure this matches your SERVER port
         changeOrigin: true,
         secure: false,
       },
