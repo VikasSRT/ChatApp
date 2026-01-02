@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
 
 export const connectWS = () => {
-    return io("http://localhost:3000");
+    return io("https://chatapp-backend-y1p9.onrender.com");
 }
